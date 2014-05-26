@@ -32,7 +32,7 @@
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
            (package-install package))))
  '(color-theme-monokai color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized
-   smart-mode-line expand-region adaptive-wrap paredit helm
+   smart-mode-line expand-region adaptive-wrap paredit e2wm icicles
    evil evil-leader evil-paredit key-chord
    autopair highlight-symbol
    multiple-cursors mc-extras
@@ -41,6 +41,16 @@
    markdown-mode
    web-mode emmet-mode
    clojure-mode nrepl))
+
+;;; el-get
+(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+(unless (require 'el-get nil t)
+  (url-retrieve
+   "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
+   (lambda (s)
+     (end-of-buffer)
+     (eval-print-last-sexp))))
+
 
 (defun forward-word-to-beginning (&optional n)
   "Move point forward n words and place cursor at the beginning."
@@ -366,14 +376,21 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 
 
 ;;; ----------------------------------------------------------------------------
-;;; Helm mode
+;;; e2wm
 ;;; ----------------------------------------------------------------------------
 
-(defun toggle-helm-mode ()
-  (interactive)
-  (if (and (boundp 'helm-mode) helm-mode)
-      (helm-mode 0)
-    (helm-mode 1)))
+(require 'e2wm)
+
+(global-set-key (kbd "M-+") 'e2wm:start-management)
+(global-set-key (kbd "M-=") 'e2wm:stop-management)
+
+
+;;; ----------------------------------------------------------------------------
+;;; Icicles mode
+;;; ----------------------------------------------------------------------------
+
+(require 'icicles)
+(icy-mode 1)
 
 
 ;;; ----------------------------------------------------------------------------
@@ -435,10 +452,23 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(compilation-message-face (quote default))
  '(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
  '(custom-safe-themes (quote ("fa189fcf5074d4964f0a53f58d17c7e360bb8f879bd968ec4a56dc36b0013d29" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" default)))
+ '(ecb-options-version "2.40")
+ '(highlight-changes-colors (quote ("#FD5FF0" "#AE81FF")))
+ '(highlight-tail-colors (quote (("#49483E" . 0) ("#67930F" . 20) ("#349B8D" . 30) ("#21889B" . 50) ("#968B26" . 60) ("#A45E0A" . 70) ("#A41F99" . 85) ("#49483E" . 100))))
+ '(magit-diff-use-overlays nil)
  '(sml/active-background-color "firebrick4")
- '(sml/inactive-background-color "gray16"))
+ '(sml/inactive-background-color "gray16")
+ '(syslog-debug-face (quote ((t :background unspecified :foreground "#A1EFE4" :weight bold))))
+ '(syslog-error-face (quote ((t :background unspecified :foreground "#F92672" :weight bold))))
+ '(syslog-hour-face (quote ((t :background unspecified :foreground "#A6E22E"))))
+ '(syslog-info-face (quote ((t :background unspecified :foreground "#66D9EF" :weight bold))))
+ '(syslog-ip-face (quote ((t :background unspecified :foreground "#E6DB74"))))
+ '(syslog-su-face (quote ((t :background unspecified :foreground "#FD5FF0"))))
+ '(syslog-warn-face (quote ((t :background unspecified :foreground "#FD971F" :weight bold))))
+ '(weechat-color-list (quote (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0"))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -903,8 +933,8 @@ Vim's hlsearch."
   "b" (lambda () (interactive) (evil-backward-sexp)))
 
 ; Ex mappings
-(define-key evil-ex-map "e" 'helm-find-files)
-(define-key evil-ex-map "b" 'helm-buffers-list)
+;; (define-key evil-ex-map "e" 'helm-find-files)
+;; (define-key evil-ex-map "b" 'helm-buffers-list)
 
 ; Escape key behavior
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
