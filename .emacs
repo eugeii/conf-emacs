@@ -394,11 +394,19 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ; Look and feel of tab bar
 (setq tabbar-background-color "#E04E39") ;; the color of the tabbar background
 (custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(tabbar-separator (quote (1.0))))
 (custom-set-faces
- '(tabbar-default ((t (:inherit variable-pitch :background "#E04E39" :foreground "black" :weight bold))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(tabbar-button ((t (:inherit tabbar-default :foreground "dark red"))))
  '(tabbar-button-highlight ((t (:inherit tabbar-default))))
+ '(tabbar-default ((t (:inherit variable-pitch :background "#E04E39" :foreground "black" :weight bold))))
  '(tabbar-highlight ((t (:underline t))))
  '(tabbar-selected ((t (:inherit tabbar-default :background "#B04E39"))))
  '(tabbar-separator ((t (:inherit tabbar-default :background "#E04E39"))))
@@ -484,38 +492,6 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;; ----------------------------------------------------------------------------
 
 (require 'smart-mode-line)
-(if after-init-time (sml/setup)
-  (add-hook 'after-init-hook 'sml/setup))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(compilation-message-face (quote default))
- '(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
- '(custom-safe-themes (quote ("fa189fcf5074d4964f0a53f58d17c7e360bb8f879bd968ec4a56dc36b0013d29" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" default)))
- '(ecb-options-version "2.40")
- '(highlight-changes-colors (quote ("#FD5FF0" "#AE81FF")))
- '(highlight-tail-colors (quote (("#49483E" . 0) ("#67930F" . 20) ("#349B8D" . 30) ("#21889B" . 50) ("#968B26" . 60) ("#A45E0A" . 70) ("#A41F99" . 85) ("#49483E" . 100))))
- '(magit-diff-use-overlays nil)
- '(sml/active-background-color "firebrick4")
- '(sml/inactive-background-color "gray16")
- '(syslog-debug-face (quote ((t :background unspecified :foreground "#A1EFE4" :weight bold))))
- '(syslog-error-face (quote ((t :background unspecified :foreground "#F92672" :weight bold))))
- '(syslog-hour-face (quote ((t :background unspecified :foreground "#A6E22E"))))
- '(syslog-info-face (quote ((t :background unspecified :foreground "#66D9EF" :weight bold))))
- '(syslog-ip-face (quote ((t :background unspecified :foreground "#E6DB74"))))
- '(syslog-su-face (quote ((t :background unspecified :foreground "#FD5FF0"))))
- '(syslog-warn-face (quote ((t :background unspecified :foreground "#FD971F" :weight bold))))
- '(weechat-color-list (quote (unspecified "#272822" "#49483E" "#A20C41" "#F92672" "#67930F" "#A6E22E" "#968B26" "#E6DB74" "#21889B" "#66D9EF" "#A41F99" "#FD5FF0" "#349B8D" "#A1EFE4" "#F8F8F2" "#F8F8F0"))))
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 
 
 ;;; ----------------------------------------------------------------------------
@@ -543,18 +519,18 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   `(progn
      (evil-mode 0)
      (message "Evil mode disabled")
-     (setq cursor-type 'bar)
-     (custom-set-variables
-	  '(sml/active-background-color "steelblue4"))))
+     (setq cursor-type 'bar)))
+     ;; (custom-set-variables
+	 ;;  '(sml/active-background-color "steelblue4"))))
 
 (defmacro enable-evil-mode ()
   "Enable evil mode with visual cues."
   `(progn
      (evil-mode 1)
      (message "Evil mode enabled")
-     (setq cursor-type 'block)
-     (custom-set-variables
-	  '(sml/active-background-color "firebrick4"))))
+     (setq cursor-type 'block)))
+     ;; (custom-set-variables
+	 ;;  '(sml/active-background-color "gray20"))
 
 (defun toggle-evil-mode ()
   "Toggles evil mode with visual cues."
@@ -1059,8 +1035,17 @@ Vim's hlsearch."
 ;; (define-key evil-normal-state-map (kbd "M-)") 'evil-forward-sexp)
 
 
+;;; Start Emacs server
+
+; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
+(require 'server)
+(when (and (>= emacs-major-version 23)
+           (equal window-system 'w32))
+  (defun server-ensure-safe-dir (dir) "Noop" t)) 
+(server-start)
+
+
 ;;; Re-initialize Evil
 
 (enable-evil-mode)
-
 
