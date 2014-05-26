@@ -32,7 +32,7 @@
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
            (package-install package))))
  '(color-theme-monokai color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized
-   smart-mode-line expand-region adaptive-wrap paredit e2wm icicles
+   smart-mode-line expand-region adaptive-wrap paredit e2wm icicles tabbar
    evil evil-leader evil-paredit key-chord
    autopair highlight-symbol
    multiple-cursors mc-extras
@@ -50,6 +50,8 @@
    (lambda (s)
      (end-of-buffer)
      (eval-print-last-sexp))))
+
+
 
 
 (defun forward-word-to-beginning (&optional n)
@@ -376,13 +378,51 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 
 
 ;;; ----------------------------------------------------------------------------
-;;; e2wm
+;;; e2wm mode
 ;;; ----------------------------------------------------------------------------
 
 (require 'e2wm)
 
 (global-set-key (kbd "M-+") 'e2wm:start-management)
 (global-set-key (kbd "M-=") 'e2wm:stop-management)
+
+
+;;; ----------------------------------------------------------------------------
+;;; Tab bar mode
+;;; ----------------------------------------------------------------------------
+
+; Look and feel of tab bar
+(setq tabbar-background-color "#E04E39") ;; the color of the tabbar background
+(custom-set-variables
+ '(tabbar-separator (quote (1.0))))
+(custom-set-faces
+ '(tabbar-default ((t (:inherit variable-pitch :background "#E04E39" :foreground "black" :weight bold))))
+ '(tabbar-button ((t (:inherit tabbar-default :foreground "dark red"))))
+ '(tabbar-button-highlight ((t (:inherit tabbar-default))))
+ '(tabbar-highlight ((t (:underline t))))
+ '(tabbar-selected ((t (:inherit tabbar-default :background "#B04E39"))))
+ '(tabbar-separator ((t (:inherit tabbar-default :background "#E04E39"))))
+ '(tabbar-unselected ((t (:inherit tabbar-default)))))
+
+; Hide special buffers so they don't clutter up the tab bar
+(when (require 'tabbar nil t)
+  (setq tabbar-buffer-groups-function
+		(lambda (b) (list "All Buffers")))
+  (setq tabbar-buffer-list-function
+		(lambda ()
+		  (remove-if
+		   (lambda(buffer)
+			 (find (aref (buffer-name buffer) 0) " *"))
+		   (buffer-list))))
+  (tabbar-mode))
+
+(setq tabbar-buffer-groups-function
+	  (lambda ()
+		(list "All")))
+
+; Move between tabs
+(global-set-key [M-left] 'tabbar-backward-tab)
+(global-set-key [M-right] 'tabbar-forward-tab)
 
 
 ;;; ----------------------------------------------------------------------------
