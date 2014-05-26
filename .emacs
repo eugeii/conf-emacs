@@ -42,17 +42,6 @@
    web-mode emmet-mode
    clojure-mode nrepl))
 
-;;; el-get
-(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
-(unless (require 'el-get nil t)
-  (url-retrieve
-   "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
-   (lambda (s)
-     (end-of-buffer)
-     (eval-print-last-sexp))))
-
-
-
 
 (defun forward-word-to-beginning (&optional n)
   "Move point forward n words and place cursor at the beginning."
@@ -345,6 +334,17 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Function that loads all the requires and modes only when we want
+;;; them. This prevents a slow-loading Emacs on start.
+
+(defun start-full-emacs ()
+  (interactive)
+  (require 'e2wm)
+  (require 'icicles)
+  (icy-mode 1)
+  (require 'tabbar)
+  (tabbar-mode))
+
 ;;; ----------------------------------------------------------------------------
 ;;; C/C++ mode
 ;;; ----------------------------------------------------------------------------
@@ -377,11 +377,11 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 			(setq python-indent 4)))
 
 
+
+
 ;;; ----------------------------------------------------------------------------
 ;;; e2wm mode
 ;;; ----------------------------------------------------------------------------
-
-(require 'e2wm)
 
 (global-set-key (kbd "M-+") 'e2wm:start-management)
 (global-set-key (kbd "M-=") 'e2wm:stop-management)
@@ -414,7 +414,8 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 		   (lambda(buffer)
 			 (find (aref (buffer-name buffer) 0) " *"))
 		   (buffer-list))))
-  (tabbar-mode))
+  ;; (tabbar-mode)
+  )
 
 (setq tabbar-buffer-groups-function
 	  (lambda ()
@@ -429,8 +430,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;; Icicles mode
 ;;; ----------------------------------------------------------------------------
 
-(require 'icicles)
-(icy-mode 1)
+;; (require 'icicles)
 
 
 ;;; ----------------------------------------------------------------------------
@@ -941,7 +941,7 @@ Vim's hlsearch."
 
 ;;; Helm mode ------------------------------------
 
-(global-set-key [(f12)] 'toggle-helm-mode)
+(global-set-key [(f12)] 'start-full-emacs)
 
 
 ;;; Multicursors mode ----------------------------
