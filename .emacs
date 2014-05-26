@@ -27,17 +27,18 @@
 
 ;;; Installer
 (mapc
-(lambda (package)
+ (lambda (package)
    (or (package-installed-p package)
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
            (package-install package))))
-'(color-theme-monokai color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized
+ '(color-theme-monokai color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized
    smart-mode-line expand-region adaptive-wrap paredit helm
    evil evil-leader evil-paredit key-chord
    autopair highlight-symbol
    multiple-cursors mc-extras
    powershell-mode
    python-mode
+   markdown-mode
    web-mode emmet-mode
    clojure-mode nrepl))
 
@@ -45,14 +46,14 @@
   "Move point forward n words and place cursor at the beginning."
   (interactive "p")
   (let (myword)
-     (setq myword
-            (if (and transient-mark-mode mark-active)
-                 (buffer-substring-no-properties (region-beginning) (region-end))
-               (thing-at-point 'symbol)))
-     (if (not (eq myword nil))
-          (forward-word n))
-     (forward-word n)
-     (backward-word n)))
+	(setq myword
+		  (if (and transient-mark-mode mark-active)
+			  (buffer-substring-no-properties (region-beginning) (region-end))
+			(thing-at-point 'symbol)))
+	(if (not (eq myword nil))
+		(forward-word n))
+	(forward-word n)
+	(backward-word n)))
 
 
 
@@ -81,11 +82,11 @@
 
 ;;; Backups and files
 (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
-       backup-by-copying t                    ; Don't delink hardlinks
-       version-control t                      ; Use version numbers on backups
-       delete-old-versions t                  ; Automatically delete excess backups
-       kept-new-versions 20                   ; how many of the newest versions to keep
-       kept-old-versions 5)                   ; and how many of the old
+	  backup-by-copying t                    ; Don't delink hardlinks
+	  version-control t                      ; Use version numbers on backups
+	  delete-old-versions t                  ; Automatically delete excess backups
+	  kept-new-versions 20                   ; how many of the newest versions to keep
+	  kept-old-versions 5)                   ; and how many of the old
 
 ;;; Suppress GUI elements
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -98,10 +99,10 @@
 
 ;;; Scrolling
 (setq redisplay-dont-pause t
-       scroll-margin 1
-       scroll-step 1
-       scroll-conservatively 10000
-       scroll-preserve-screen-position 1)
+	  scroll-margin 1
+	  scroll-step 1
+	  scroll-conservatively 10000
+	  scroll-preserve-screen-position 1)
 (setq mouse-wheel-scroll-amount '(4 ((shift) . 4) ((control) . nil)))
 (setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-follow-mouse 't)
@@ -128,24 +129,24 @@
   (interactive)
   (if window-system
   (progn
-     ;; Set font
-     (set-face-attribute 'default nil :font "Consolas")
-    
-     ;; Set position to origin
-     (set-frame-position (selected-frame) 0 0)
-    
+	;; Set font
+	(set-face-attribute 'default nil :font "Consolas")
+	
+	;; Set position to origin
+	(set-frame-position (selected-frame) 0 0)
+	
     ;; use 120 char wide window for largeish displays
     ;; and smaller 80 column windows for smaller displays
     ;; pick whatever numbers make sense for you
     (if (> (x-display-pixel-width) 1280)
-          (add-to-list 'default-frame-alist (cons 'width 120))
-       (add-to-list 'default-frame-alist (cons 'width 80)))
+		(add-to-list 'default-frame-alist (cons 'width 120))
+	  (add-to-list 'default-frame-alist (cons 'width 80)))
 
     ;; for the height, subtract a couple hundred pixels
     ;; from the screen height (for panels, menubars and
     ;; whatnot), then divide by the height of a char to
     ;; get the height we want
-    (add-to-list 'default-frame-alist
+    (add-to-list 'default-frame-alist 
          (cons 'height (/ (- (x-display-pixel-height) 200)
                              (frame-char-height)))))))
 
@@ -161,46 +162,46 @@
 With argument ARG, do this that many times."
   (interactive "p")
   (delete-region (point)
-                    (progn
-                       (evil-forward-word-begin-shift-support)
-                       (point))))
+				 (progn
+				   (evil-forward-word-begin-shift-support)
+				   (point))))
 
 (defun backward-delete-word (arg)
   "Delete characters backward until encountering the beginning of a word.
 With argument ARG, do this that many times."
   (interactive "p")
   (delete-region (point)
-                    (progn
-                       (evil-backward-word-begin-shift-support)
-                       (point))))
+				 (progn
+				   (evil-backward-word-begin-shift-support)
+				   (point))))
 
 
 ;;; ----------------------------------------------------------------------------
-;;; Windowing behavior
+;;; Windowing behavior 
 ;;; ----------------------------------------------------------------------------
 
 (defun swap-windows ()
   "If you have 2 windows, it swaps them."
   (interactive)
   (cond ((not (= (count-windows) 2)) (message "You need exactly 2 windows to do this."))
-          (t
-          (let* ((w1 (first (window-list)))
-                    (w2 (second (window-list)))
-                    (b1 (window-buffer w1))
-                    (b2 (window-buffer w2))
-                    (s1 (window-start w1))
-                    (s2 (window-start w2)))
-             (set-window-buffer w1 b2)
-             (set-window-buffer w2 b1)
-             (set-window-start w1 s2)
-             (set-window-start w2 s1)))))
+		(t
+		 (let* ((w1 (first (window-list)))
+				(w2 (second (window-list)))
+				(b1 (window-buffer w1))
+				(b2 (window-buffer w2))
+				(s1 (window-start w1))
+				(s2 (window-start w2)))
+		   (set-window-buffer w1 b2)
+		   (set-window-buffer w2 b1)
+		   (set-window-start w1 s2)
+		   (set-window-start w2 s1)))))
 
 (defun toggle-split-direction ()
   "If the frame is split vertically, split it horizontally or vice versa.
 Assumes that the frame is only split into two."
   (interactive)
   (unless (= (length (window-list)) 2)
-     (error "Can only toggle a frame split in two"))
+	(error "Can only toggle a frame split in two"))
   (let ((split-vertically-p (window-combined-p)))
     (delete-window) ; closes current window
     (if split-vertically-p
@@ -220,41 +221,41 @@ Assumes that the frame is only split into two."
   "Renames both current buffer and file it's visiting to NEW-NAME."
   (interactive "sNew name: ")
   (let ((name (buffer-name))
-          (filename (buffer-file-name)))
-     (if (not filename)
-          (message "Buffer '%s' is not visiting a file!" name)
-       (if (get-buffer new-name)
-            (message "A buffer named '%s' already exists!" new-name)
-          (progn
-            (rename-file name new-name 1)
-            (rename-buffer new-name)
-            (set-visited-file-name new-name)
-            (set-buffer-modified-p nil))))))
+		(filename (buffer-file-name)))
+	(if (not filename)
+		(message "Buffer '%s' is not visiting a file!" name)
+	  (if (get-buffer new-name)
+		  (message "A buffer named '%s' already exists!" new-name)
+		(progn
+		  (rename-file name new-name 1)
+		  (rename-buffer new-name)
+		  (set-visited-file-name new-name)
+		  (set-buffer-modified-p nil))))))
 
 (defun move-buffer-file (dir)
   "Moves both current buffer and file it's visiting to DIR."
   (interactive "DNew directory: ")
   (let* ((name (buffer-name))
-          (filename (buffer-file-name))
-          (dir
-            (if (string-match dir "\\(?:/\\|\\\\)$")
-                 (substring dir 0 -1) dir))
-          (newname (concat dir "/" name)))
-     (if (not filename)
-          (message "Buffer '%s' is not visiting a file!" name)
-       (progn
-          (copy-file filename newname 1)
-          (delete-file filename)
-          (set-visited-file-name newname)
-          (set-buffer-modified-p nil)
-          t))))
+		 (filename (buffer-file-name))
+		 (dir
+		  (if (string-match dir "\\(?:/\\|\\\\)$")
+			  (substring dir 0 -1) dir))
+		 (newname (concat dir "/" name)))
+	(if (not filename)
+		(message "Buffer '%s' is not visiting a file!" name)
+	  (progn
+		(copy-file filename newname 1)
+		(delete-file filename)
+		(set-visited-file-name newname)
+		(set-buffer-modified-p nil)
+		t)))) 
 
 (defun open-buffer-path ()
   "Run explorer on the directory of the current buffer."
   (interactive)
   (shell-command
    (concat "explorer "
-             (replace-regexp-in-string "/" "\\" (file-name-directory (buffer-file-name)) t t))))
+		   (replace-regexp-in-string "/" "\\" (file-name-directory (buffer-file-name)) t t))))
 
 
 ;;; ----------------------------------------------------------------------------
@@ -293,8 +294,8 @@ This is the same as using \\[set-mark-command] with the prefix argument."
 
 (defun eval-expression-at-point ()
   (if (fboundp 'nrepl-eval-expression-at-point)
-       (nrepl-eval-expression-at-point)
-     (eval-last-sexp)))
+	  (nrepl-eval-expression-at-point)
+	(eval-last-sexp)))
 
 
 ;;; ----------------------------------------------------------------------------
@@ -307,21 +308,21 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   (interactive "P")
   (save-some-buffers arg t)
   (and (or (not (fboundp 'process-list))
-             ;; process-list is not defined on MSDOS.
-             (let ((processes (process-list))
-                    active)
-               (while processes
-                  (and (memq (process-status (car processes)) '(run stop open listen))
-                         (process-query-on-exit-flag (car processes))
-                         (setq active t))
-                  (setq processes (cdr processes)))
-               (or (not active)
-                    (progn (list-processes t)
-                              (yes-or-no-p "Active processes exist; kill them and exit anyway? ")))))
+		   ;; process-list is not defined on MSDOS.
+		   (let ((processes (process-list))
+				 active)
+			 (while processes
+			   (and (memq (process-status (car processes)) '(run stop open listen))
+					(process-query-on-exit-flag (car processes))
+					(setq active t))
+			   (setq processes (cdr processes)))
+			 (or (not active)
+				 (progn (list-processes t)
+						(yes-or-no-p "Active processes exist; kill them and exit anyway? ")))))
        ;; Query the user for other things, perhaps.
        (run-hook-with-args-until-failure 'kill-emacs-query-functions)
        (or (null confirm-kill-emacs)
-             (funcall confirm-kill-emacs "Really exit Emacs? "))
+		   (funcall confirm-kill-emacs "Really exit Emacs? "))
        (kill-emacs)))
 
 
@@ -331,6 +332,38 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;;; Various modes
 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; ----------------------------------------------------------------------------
+;;; C/C++ mode
+;;; ----------------------------------------------------------------------------
+
+(setq c-block-comment-prefix "*")
+(setq c-comment-prefix-regexp "//+\\ | \\**")
+
+(add-hook 'c-mode-hook
+		  (lambda ()
+			(setq indent-tabs-mode t)
+			(setq tab-width 4)
+			(setq python-indent 4)
+			(setq comment-style 'multi-line)))
+
+(add-hook 'c++-mode-hook
+		  (lambda ()
+			(setq indent-tabs-mode t)
+			(setq tab-width 4)
+			(setq python-indent 4)
+			(setq comment-style 'multi-line)))
+
+
+;;; ----------------------------------------------------------------------------
+;;; Python mode
+;;; ----------------------------------------------------------------------------
+(add-hook 'python-mode-hook
+		  (lambda ()
+			(setq indent-tabs-mode t)
+			(setq tab-width 4)
+			(setq python-indent 4)))
+
 
 ;;; ----------------------------------------------------------------------------
 ;;; Helm mode
@@ -360,8 +393,8 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 (defun get-org-mode-css-stylesheet (css-file-name)
   ;; Get custom CSS style sheet for org-mode, if available
   (ignore-errors
-     (let ((css (format "<style>%s</style>" (get-string-from-file css-file-name))))
-       (setq org-export-html-style css))))
+	(let ((css (format "<style>%s</style>" (get-string-from-file css-file-name))))
+	  (setq org-export-html-style css))))
 
 (get-org-mode-css-stylesheet "~/org-mode-style.css")
 
@@ -398,21 +431,21 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   (add-hook 'after-init-hook 'sml/setup))
 
 (custom-set-variables
-;; custom-set-variables was added by Custom.
-;; If you edit it by hand, you could mess it up, so be careful.
-;; Your init file should contain only one such instance.
-;; If there is more than one, they won't work right.
-'(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
-'(custom-safe-themes (quote ("fa189fcf5074d4964f0a53f58d17c7e360bb8f879bd968ec4a56dc36b0013d29" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" default)))
-'(sml/active-background-color "firebrick4")
-'(sml/inactive-background-color "gray16"))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
+ '(custom-safe-themes (quote ("fa189fcf5074d4964f0a53f58d17c7e360bb8f879bd968ec4a56dc36b0013d29" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" default)))
+ '(sml/active-background-color "firebrick4")
+ '(sml/inactive-background-color "gray16"))
 
 (custom-set-faces
-;; custom-set-faces was added by Custom.
-;; If you edit it by hand, you could mess it up, so be careful.
-;; Your init file should contain only one such instance.
-;; If there is more than one, they won't work right.
-)
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
 
 
 ;;; ----------------------------------------------------------------------------
@@ -425,11 +458,11 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   "Check if evil-mode is on, and disable it temporarily"
   `(let ((evil-mode-is-on (evil-mode?)))
      (if evil-mode-is-on
-          (disable-evil-mode))
+		 (disable-evil-mode))
      (ignore-errors
-        ,@do-this)
-     (if evil-mode-is-on
-          (enable-evil-mode))))
+	   ,@do-this)
+	 (if evil-mode-is-on
+		 (enable-evil-mode))))
 
 (defmacro evil-mode? ()
   "Checks if evil mode is active. Uses Evil's state to check."
@@ -442,7 +475,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
      (message "Evil mode disabled")
      (setq cursor-type 'bar)
      (custom-set-variables
-       '(sml/active-background-color "steelblue4"))))
+	  '(sml/active-background-color "steelblue4"))))
 
 (defmacro enable-evil-mode ()
   "Enable evil mode with visual cues."
@@ -451,14 +484,14 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
      (message "Evil mode enabled")
      (setq cursor-type 'block)
      (custom-set-variables
-       '(sml/active-background-color "firebrick4"))))
+	  '(sml/active-background-color "firebrick4"))))
 
 (defun toggle-evil-mode ()
   "Toggles evil mode with visual cues."
   (interactive)
   (if (evil-mode?)
-       (disable-evil-mode)
-     (enable-evil-mode)))
+	  (disable-evil-mode)
+	(enable-evil-mode)))
 
 
 ;;; Initialize Evil
@@ -471,7 +504,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 (defun evil-search-nomove (string forward &optional regexp-p start)
   "Supporting function for evil-superstar."
   (ignore-errors
-     (backward-char 1))
+	(backward-char 1))
   (when (and (stringp string)
              (not (string= string "")))
     ;; Move to the beginning of the word
@@ -536,7 +569,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
         (setq string (regexp-quote string)))
        (t
         (setq string (format "\\_<%s\\_>" (regexp-quote string)))))
-       (message string)
+	  (message string)
       (evil-search-nomove string forward t)))))
 
 (evil-define-motion evil-superstar ()
@@ -603,17 +636,17 @@ Vim's hlsearch."
   "Comments or uncomments the region or the current line if there's no active region."
   (interactive)
   (let (beg end)
-                                                  ; Grab beginning and end of active region, if any
+										; Grab beginning and end of active region, if any
     (if (region-active-p)
-          (setq beg (region-beginning) end (region-end))
+		(setq beg (region-beginning) end (region-end))
       (setq beg (line-beginning-position) end (line-end-position)))
 
-                                                  ; If line is blank, create a new comment. Else, comment out the line.
+										; If line is blank, create a new comment. Else, comment out the line.
     (if     (and (/= (line-beginning-position) (line-end-position))
-                    (not (string-match "^\s+$" (buffer-substring beg end))))
-          (comment-or-uncomment-region beg end)
+				 (not (string-match "^\s+$" (buffer-substring beg end))))
+		(comment-or-uncomment-region beg end)
       (progn
-          (comment-dwim nil)))))
+		(comment-dwim nil)))))
 
 
 ;;; Clipboard bypass
@@ -697,16 +730,16 @@ Vim's hlsearch."
   (if truncate-lines
       ;; No word wrap, turn it on
       (progn
-          (visual-line-mode 1)
-          (toggle-truncate-lines 0)
-          (define-key evil-normal-state-map "j" 'evil-next-visual-line)
-          (define-key evil-normal-state-map "k" 'evil-previous-visual-line)
-          (define-key evil-visual-state-map "j" 'evil-next-visual-line)
-          (define-key evil-visual-state-map "k" 'evil-previous-visual-line)
-          (define-key evil-normal-state-map [down] 'evil-next-visual-line)
-          (define-key evil-normal-state-map [up] 'evil-previous-visual-line)
-          (define-key evil-visual-state-map [down] 'evil-next-visual-line)
-          (define-key evil-visual-state-map [up] 'evil-previous-visual-line))
+		(visual-line-mode 1)
+		(toggle-truncate-lines 0)
+		(define-key evil-normal-state-map "j" 'evil-next-visual-line)
+		(define-key evil-normal-state-map "k" 'evil-previous-visual-line)
+		(define-key evil-visual-state-map "j" 'evil-next-visual-line)
+		(define-key evil-visual-state-map "k" 'evil-previous-visual-line)
+		(define-key evil-normal-state-map [down] 'evil-next-visual-line)
+		(define-key evil-normal-state-map [up] 'evil-previous-visual-line)
+		(define-key evil-visual-state-map [down] 'evil-next-visual-line)
+		(define-key evil-visual-state-map [up] 'evil-previous-visual-line))
     ;; Word wrapped, turn it off
     (progn
       (visual-line-mode 0)
@@ -757,7 +790,7 @@ Vim's hlsearch."
   `(progn
      (backward-up-sexp 1)
      (while (not (left-parenthesis?))  ; Detect '('
-        (backward-up-sexp 1))))
+	   (backward-up-sexp 1))))
 
 (defun backward-up-sexp (arg)
   "Moves to the previous enclosing sexp."
@@ -777,9 +810,9 @@ Vim's hlsearch."
   "Jump to end of current sexp."
   (interactive "^")
   (unless (left-parenthesis?)    ; If on '(', directly jump
-     (if (right-parenthesis?)     ; Escape current ')'
-          (forward-char 1))
-     (previous-left-parenthesis)) ; Find the previous left parenthesis
+	(if (right-parenthesis?)     ; Escape current ')'
+		(forward-char 1))
+	(previous-left-parenthesis)) ; Find the previous left parenthesis
   (evil-jump-item))
 
 
@@ -823,7 +856,7 @@ Vim's hlsearch."
 
 ;;; Copy/select entire buffer
 (global-set-key (kbd "C-c C-a") 'copy-whole-buffer-nomove)
-(global-set-key (kbd "C-a") 'mark-whole-buffer)
+;; (global-set-key (kbd "C-a") 'mark-whole-buffer)
 
 ;;; Toggle highlight symbol (under cursor)
 (global-set-key [(f6)] 'highlight-symbol-mode)
@@ -929,10 +962,10 @@ Vim's hlsearch."
   (evil-normal-state))
 
 (setq key-chord-two-keys-delay 0.1)
-(key-chord-define evil-visual-state-map "jk" 'evil-exit-visual-state)
-(key-chord-define evil-visual-state-map "kj" 'evil-exit-visual-state)
-(key-chord-define evil-insert-state-map "jk" 'evil-escape-everything)
-(key-chord-define evil-insert-state-map "kj" 'evil-escape-everything)
+;; (key-chord-define evil-visual-state-map "jk" 'evil-exit-visual-state)
+;; (key-chord-define evil-visual-state-map "kj" 'evil-exit-visual-state)
+;; (key-chord-define evil-insert-state-map "jk" 'evil-escape-everything)
+;; (key-chord-define evil-insert-state-map "kj" 'evil-escape-everything)
 (key-chord-mode 1)
 
 ;; Selection behavior
@@ -959,6 +992,5 @@ Vim's hlsearch."
 ;;; Re-initialize Evil
 
 (enable-evil-mode)
-
 
 
