@@ -36,10 +36,7 @@
    evil evil-leader evil-paredit key-chord
    autopair highlight-symbol
    multiple-cursors mc-extras
-   powershell-mode
-   python-mode
-   markdown-mode
-   web-mode emmet-mode
+   powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode
    clojure-mode nrepl))
 
 
@@ -213,6 +210,10 @@ Assumes that the frame is only split into two."
 ;;; I don't use the default binding of 'C-x 5', so use toggle-frame-split instead
 (global-set-key (kbd "C-x 5") 'toggle-frame-split)
 
+(defun switch-to-previous-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
 
 ;;; ----------------------------------------------------------------------------
 ;;; File handling
@@ -370,6 +371,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;; ----------------------------------------------------------------------------
 ;;; Python mode
 ;;; ----------------------------------------------------------------------------
+
 (add-hook 'python-mode-hook
 		  (lambda ()
 			(setq indent-tabs-mode t)
@@ -377,6 +379,13 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 			(setq python-indent 4)))
 
 
+;;; ----------------------------------------------------------------------------
+;;; Go mode
+;;; ----------------------------------------------------------------------------
+
+(add-hook 'go-mode-hook
+		  (lambda ()
+			(global-set-key [(f9)] 'gofmt)))
 
 
 ;;; ----------------------------------------------------------------------------
@@ -896,6 +905,7 @@ Vim's hlsearch."
 
 ;;; Change window
 (global-set-key (kbd "<C-tab>") 'other-window)
+(global-set-key (kbd "C-,") 'other-window)
 
 ;;; Save and close
 (fset 'save-buffers-kill-emacs 'save-buffers-and-close-emacs)
@@ -910,6 +920,8 @@ Vim's hlsearch."
 ;;; Toggle split direction
 (global-set-key [(f11)] 'toggle-split-direction)
 
+;;; Switch to previous most recently used buffer
+(global-set-key [(f4)] 'switch-to-previous-buffer)
 
 ;;; ----------------------------------------------------------------------------
 ;;; Key bindings for Modes
@@ -939,14 +951,17 @@ Vim's hlsearch."
   "v" (lambda () (interactive) (find-file "~/.emacs"))
   "|" (lambda () (interactive) (split-window-right))           ; Window vertical split
   "-" (lambda () (interactive) (split-window-below))           ; Window horizontal split
-  "q" (lambda () (interactive) (delete-window))                    ; Delete window
+  "q" (lambda () (interactive) (delete-window))                ; Delete window
   "1" (lambda () (interactive) (delete-other-windows))         ; Delete other windows
   "w" (lambda () (interactive) (select-window (next-window)))  ; Move to next window
   "e" (lambda () (interactive) (open-buffer-path))
   "q" (lambda () (interactive) (eval-expression-at-point))
   "x" (lambda () (interactive) (kill-buffer))
-  "f" (lambda () (interactive) (evil-forward-sexp))
-  "b" (lambda () (interactive) (evil-backward-sexp)))
+  ;; "f" (lambda () (interactive) (evil-forward-sexp))
+  ;; "b" (lambda () (interactive) (evil-backward-sexp))
+  "b" (lambda () (interactive) (buffer-menu))
+  "n" (lambda () (interactive) (switch-to-buffer (get-buffer-create "empty"))))
+
 
 ; Ex mappings
 ;; (define-key evil-ex-map "e" 'helm-find-files)
@@ -1038,11 +1053,11 @@ Vim's hlsearch."
 ;;; Start Emacs server
 
 ; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
-(require 'server)
-(when (and (>= emacs-major-version 23)
-           (equal window-system 'w32))
-  (defun server-ensure-safe-dir (dir) "Noop" t)) 
-(server-start)
+;; (require 'server)
+;; (when (and (>= emacs-major-version 23)
+;;            (equal window-system 'w32))
+;;   (defun server-ensure-safe-dir (dir) "Noop" t)) 
+;; (server-start)
 
 
 ;;; Re-initialize Evil
