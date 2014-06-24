@@ -31,7 +31,7 @@
    (or (package-installed-p package)
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
            (package-install package))))
- '(color-theme-monokai color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized
+ '(color-theme-monokai monokai-theme
    smart-mode-line expand-region adaptive-wrap paredit e2wm icicles tabbar
    evil evil-leader evil-paredit key-chord
    autopair highlight-symbol
@@ -127,9 +127,10 @@
   (interactive)
   (if window-system
   (progn
-	;; Set font
-	(set-face-attribute 'default nil :font "Consolas")
-	
+	(if (eq system-type 'windows-nt)
+		;; Set font
+		(set-face-attribute 'default nil :font "Consolas"))
+		
 	;; Set position to origin
 	(set-frame-position (selected-frame) 0 0)
 	
