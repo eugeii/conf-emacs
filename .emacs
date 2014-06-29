@@ -130,6 +130,10 @@
 	(if (eq system-type 'windows-nt)
 		;; Set font
 		(set-face-attribute 'default nil :font "Consolas"))
+	(if (eq system-type 'gnu/linux)
+		;; Set font
+		(set-face-attribute 'default nil :font "Droid Sans Mono"))
+		
 		
 	;; Set position to origin
 	(set-frame-position (selected-frame) 0 0)
