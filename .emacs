@@ -109,7 +109,7 @@
 ;;; GUI options
 (global-linum-mode 1)                               ; Show line numbers
 (column-number-mode 1)                              ; Display column number
-(setq frame-title-format '("" "%b"))                ; Window title
+(setq frame-title-format '("%b - %f"))              ; Window title
 (adaptive-wrap-prefix-mode 1)                       ; Wrap
 (switch-to-buffer (get-buffer-create "empty"))      ; Start with blank screen
 (delete-other-windows)
