@@ -33,6 +33,7 @@
            (package-install package))))
  '(color-theme-monokai monokai-theme
    smart-mode-line expand-region adaptive-wrap paredit e2wm icicles tabbar
+   exec-path-from-shell
    evil evil-leader evil-paredit key-chord
    autopair highlight-symbol
    multiple-cursors mc-extras
@@ -122,6 +123,7 @@
 (add-hook 'text-mode-hook 'turn-on-visual-line-mode)
 (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
 
+
 ;;; Emacs frame size
 (defun set-frame-size-according-to-resolution ()
   (interactive)
@@ -154,6 +156,9 @@
                              (frame-char-height)))))))
 
 (set-frame-size-according-to-resolution)
+
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 
 ;;; ----------------------------------------------------------------------------
@@ -391,6 +396,8 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 (add-hook 'go-mode-hook
 		  (lambda ()
 			(global-set-key [(f9)] 'gofmt)))
+
+(add-hook 'before-save-hook 'gofmt-before-save)
 
 
 ;;; ----------------------------------------------------------------------------
