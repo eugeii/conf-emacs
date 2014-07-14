@@ -975,10 +975,6 @@ Vim's hlsearch."
   "n" (lambda () (interactive) (switch-to-buffer (get-buffer-create "empty"))))
 
 
-; Ex mappings
-;; (define-key evil-ex-map "e" 'helm-find-files)
-;; (define-key evil-ex-map "b" 'helm-buffers-list)
-
 ; Escape key behavior
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
 (define-key evil-visual-state-map [escape] 'keyboard-quit)
@@ -1026,6 +1022,12 @@ Vim's hlsearch."
 (define-key evil-normal-state-map "Y" 'evil-copy-to-end-of-line)
 (define-key evil-visual-state-map "P" 'evil-destroy-paste-before)
 (define-key evil-visual-state-map "p" 'evil-destroy-paste-after)
+
+;; Prevent bindings
+(defun evil-undefine ()
+  (interactive)
+  (let (evil-mode-map-alist)
+	(call-interactively (key-binding (this-command-keys)))))
 
 ;; Escape behaviour
 (defun evil-escape-everything ()
@@ -1076,3 +1078,19 @@ Vim's hlsearch."
 
 (enable-evil-mode)
 
+;;; Re-initialize Evil
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;; Evil mode overrides
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Home/end behavior
+(define-key evil-normal-state-map (kbd "<C-a>") 'evil-undefine)
+(define-key evil-normal-state-map (kbd "<C-e>") 'evil-undefine)
+(define-key evil-normal-state-map "\C-a" 'evil-beginning-of-line)
+(define-key evil-motion-state-map "\C-a" 'evil-beginning-of-line)
+(define-key evil-normal-state-map "\C-e" 'evil-end-of-line)
+(define-key evil-motion-state-map "\C-e" 'evil-end-of-line)
