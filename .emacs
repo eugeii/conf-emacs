@@ -37,7 +37,7 @@
    evil evil-leader evil-paredit key-chord
    autopair highlight-symbol
    multiple-cursors mc-extras
-   powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode
+   powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode
    clojure-mode nrepl))
 
 
