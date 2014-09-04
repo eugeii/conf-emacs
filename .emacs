@@ -419,7 +419,25 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(tabbar-separator (quote (1.0))))
+ '(ansi-color-names-vector ["#1B1E1C" "#FF1493" "#87D700" "#CDC673" "#5FD7FF" "#D700D7" "#5FFFFF" "#F5F5F5"])
+ '(compilation-message-face (quote default))
+ '(custom-safe-themes (quote ("60f04e478dedc16397353fb9f33f0d895ea3dab4f581307fbf0aa2f07e658a40" default)))
+ '(fci-rule-color "#303030")
+ '(highlight-changes-colors (quote ("#D700D7" "#AF87FF")))
+ '(highlight-tail-colors (quote (("#303030" . 0) ("#B3EE3A" . 20) ("#AFEEEE" . 30) ("#8DE6F7" . 50) ("#FFF68F" . 60) ("#FFA54F" . 70) ("#FE87F4" . 85) ("#303030" . 100))))
+ '(magit-diff-use-overlays nil)
+ '(syslog-debug-face (quote ((t :background unspecified :foreground "#5FFFFF" :weight bold))))
+ '(syslog-error-face (quote ((t :background unspecified :foreground "#FF1493" :weight bold))))
+ '(syslog-hour-face (quote ((t :background unspecified :foreground "#87D700"))))
+ '(syslog-info-face (quote ((t :background unspecified :foreground "#5FD7FF" :weight bold))))
+ '(syslog-ip-face (quote ((t :background unspecified :foreground "#CDC673"))))
+ '(syslog-su-face (quote ((t :background unspecified :foreground "#D700D7"))))
+ '(syslog-warn-face (quote ((t :background unspecified :foreground "#FF8C00" :weight bold))))
+ '(tabbar-separator (quote (1.0)))
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map (quote ((20 . "#FF1493") (40 . "#CF4F1F") (60 . "#C26C0F") (80 . "#CDC673") (100 . "#AB8C00") (120 . "#A18F00") (140 . "#989200") (160 . "#8E9500") (180 . "#87D700") (200 . "#729A1E") (220 . "#609C3C") (240 . "#4E9D5B") (260 . "#3C9F79") (280 . "#5FFFFF") (300 . "#299BA6") (320 . "#2896B5") (340 . "#2790C3") (360 . "#5FD7FF"))))
+ '(vc-annotate-very-old-color nil)
+ '(weechat-color-list (quote (unspecified "#1B1E1C" "#303030" "#5F0000" "#FF1493" "#6B8E23" "#87D700" "#968B26" "#CDC673" "#21889B" "#5FD7FF" "#A41F99" "#D700D7" "#349B8D" "#5FFFFF" "#F5F5F5" "#FFFAFA"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -969,10 +987,11 @@ Vim's hlsearch."
   "e" (lambda () (interactive) (open-buffer-path))
   "q" (lambda () (interactive) (eval-expression-at-point))
   "x" (lambda () (interactive) (kill-buffer))
+  "b" (lambda () (interactive) (buffer-menu))
+  "n" (lambda () (interactive) (switch-to-buffer (get-buffer-create "empty")))
+  "f" (lambda () (interactive) (make-frame-command)))
   ;; "f" (lambda () (interactive) (evil-forward-sexp))
   ;; "b" (lambda () (interactive) (evil-backward-sexp))
-  "b" (lambda () (interactive) (buffer-menu))
-  "n" (lambda () (interactive) (switch-to-buffer (get-buffer-create "empty"))))
 
 
 ; Escape key behavior
@@ -1090,7 +1109,19 @@ Vim's hlsearch."
 ;;; Home/end behavior
 (define-key evil-normal-state-map (kbd "<C-a>") 'evil-undefine)
 (define-key evil-normal-state-map (kbd "<C-e>") 'evil-undefine)
+(define-key evil-normal-state-map (kbd "<C-d>") 'evil-undefine)
+
 (define-key evil-normal-state-map "\C-a" 'evil-beginning-of-line)
 (define-key evil-motion-state-map "\C-a" 'evil-beginning-of-line)
+(define-key evil-insert-state-map "\C-a" 'beginning-of-line)
+
 (define-key evil-normal-state-map "\C-e" 'evil-end-of-line)
 (define-key evil-motion-state-map "\C-e" 'evil-end-of-line)
+(define-key evil-insert-state-map "\C-e" 'end-of-line)
+
+(define-key evil-normal-state-map "\C-d" 'evil-delete-char)
+(define-key evil-motion-state-map "\C-d" 'evil-delete-char)
+(define-key evil-insert-state-map "\C-d" 'evil-delete-char)
+
+(start-full-emacs)
+(setq ns-pop-up-frames nil)
