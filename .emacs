@@ -34,7 +34,7 @@
  '(color-theme-monokai monokai-theme
    smart-mode-line expand-region adaptive-wrap paredit e2wm icicles tabbar
    exec-path-from-shell
-   evil evil-leader evil-paredit key-chord
+   evil evil-leader evil-paredit key-chord evil-surround
    autopair highlight-symbol
    multiple-cursors mc-extras
    powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode
@@ -379,6 +379,16 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 
 
 ;;; ----------------------------------------------------------------------------
+;;; Multiple cursors
+;;; ----------------------------------------------------------------------------
+
+;; (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+;; (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+;; (global-set-key [(f1)] 'mc/mark-all-like-this)
+;; (global-set-key (kbd "C-S-l") 'mc/edit-ends-of-lines)
+
+;;; ----------------------------------------------------------------------------
 ;;; Python mode
 ;;; ----------------------------------------------------------------------------
 
@@ -721,13 +731,13 @@ Vim's hlsearch."
   "Comments or uncomments the region or the current line if there's no active region."
   (interactive)
   (let (beg end)
-										; Grab beginning and end of active region, if any
+	; Grab beginning and end of active region, if any
     (if (region-active-p)
 		(setq beg (region-beginning) end (region-end))
       (setq beg (line-beginning-position) end (line-end-position)))
 
-										; If line is blank, create a new comment. Else, comment out the line.
-    (if     (and (/= (line-beginning-position) (line-end-position))
+	; If line is blank, create a new comment. Else, comment out the line.
+    (if (and (/= (line-beginning-position) (line-end-position))
 				 (not (string-match "^\s+$" (buffer-substring beg end))))
 		(comment-or-uncomment-region beg end)
       (progn
@@ -797,7 +807,6 @@ Vim's hlsearch."
 
 
 ;;; Evil movement
-
 (evil-define-motion evil-little-word (count)
   "Defines a little word motion as oneTwoThree. Hence, one, two and three are all considered words."
   :type exclusive
@@ -962,14 +971,9 @@ Vim's hlsearch."
 (global-set-key [(f12)] 'start-full-emacs)
 
 
-;;; Multicursors mode ----------------------------
+;;; Evil mode (surround) ---------------------------
 
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-M->") 'mc/skip-to-next-like-this)
-(global-set-key (kbd "C-M-<") 'mc/skip-to-previous-like-this)
-(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-(global-set-key [M-f3] 'mc/mark-all-symbols-like-this)
+(global-evil-surround-mode 1)
 
 
 ;;; Evil mode (leader) ---------------------------
@@ -996,7 +1000,7 @@ Vim's hlsearch."
 
 ; Escape key behavior
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
-(define-key evil-visual-state-map [escape] 'keyboard-quit)
+;; (define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
