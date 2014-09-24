@@ -32,11 +32,12 @@
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
            (package-install package))))
  '(color-theme-monokai monokai-theme
-   smart-mode-line expand-region adaptive-wrap paredit e2wm icicles tabbar
-   exec-path-from-shell
+   smart-mode-line expand-region adaptive-wrap icicles fuzzy-match tabbar
+   exec-path-from-shell dired+
    evil evil-leader evil-paredit key-chord evil-surround
    autopair highlight-symbol
    multiple-cursors mc-extras
+   js2-mode web-beautify
    powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode
    clojure-mode nrepl))
 
@@ -350,11 +351,43 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 
 (defun start-full-emacs ()
   (interactive)
-  (require 'e2wm)
-  (require 'icicles)
-  (icy-mode 1)
+  (ido-mode 1)
+  ;; (require 'icicles)
+  ;; (icy-mode 1)
+  (require 'dired+)
   (require 'tabbar)
   (tabbar-mode))
+
+
+;;; ----------------------------------------------------------------------------
+;;; Web mode
+;;; ----------------------------------------------------------------------------
+
+(eval-after-load 'js2-mode
+  '(add-hook 'js2-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+
+;; Or if you're using 'js-mode' (a.k.a 'javascript-mode')
+(eval-after-load 'js
+  '(add-hook 'js-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+
+(eval-after-load 'json-mode
+  '(add-hook 'json-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+
+(eval-after-load 'sgml-mode
+  '(add-hook 'html-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+
+(eval-after-load 'css-mode
+  '(add-hook 'css-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook 'web-beautify-css-buffer t t))))
 
 ;;; ----------------------------------------------------------------------------
 ;;; C/C++ mode
@@ -377,6 +410,15 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 			(setq python-indent 4)
 			(setq comment-style 'multi-line)))
 
+
+;;; ----------------------------------------------------------------------------
+;;; Web mode
+;;; ----------------------------------------------------------------------------
+
+(add-hook 'web-mode-hook
+		  (lambda ()
+			(setq indent-tabs-mode t)
+			(setq tab-width 4)))
 
 ;;; ----------------------------------------------------------------------------
 ;;; Multiple cursors
@@ -408,14 +450,6 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 			(global-set-key [(f9)] 'gofmt)))
 
 (add-hook 'before-save-hook 'gofmt-before-save)
-
-
-;;; ----------------------------------------------------------------------------
-;;; e2wm mode
-;;; ----------------------------------------------------------------------------
-
-(global-set-key (kbd "M-+") 'e2wm:start-management)
-(global-set-key (kbd "M-=") 'e2wm:stop-management)
 
 
 ;;; ----------------------------------------------------------------------------
@@ -966,10 +1000,14 @@ Vim's hlsearch."
 ;;; Key bindings for Modes
 ;;; ----------------------------------------------------------------------------
 
-;;; Helm mode ------------------------------------
+;;; Buffer switching ------------------------------------
 
-(global-set-key [(f12)] 'start-full-emacs)
-
+;; (global-set-key [(f12)] 'icicle-buffer)
+(global-set-key [(f10)] 'ido-find-file)
+(global-set-key [(S-f10)] 'dired-jump)
+(global-set-key [(f12)] 'ido-switch-buffer)
+(global-set-key [(S-f12)] 'buffer-menu)
+(setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
 
 ;;; Evil mode (surround) ---------------------------
 
@@ -988,7 +1026,8 @@ Vim's hlsearch."
   "q" (lambda () (interactive) (delete-window))                ; Delete window
   "1" (lambda () (interactive) (delete-other-windows))         ; Delete other windows
   "w" (lambda () (interactive) (select-window (next-window)))  ; Move to next window
-  "e" (lambda () (interactive) (open-buffer-path))
+  ;; "e" (lambda () (interactive) (open-buffer-path))
+  "e" (lambda () (interactive) (ido-find-file))
   "q" (lambda () (interactive) (eval-expression-at-point))
   "x" (lambda () (interactive) (kill-buffer))
   "b" (lambda () (interactive) (buffer-menu))
