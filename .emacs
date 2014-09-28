@@ -111,7 +111,8 @@
 ;;; GUI options
 (global-linum-mode 1)                               ; Show line numbers
 (column-number-mode 1)                              ; Display column number
-(setq frame-title-format '("%b - %f"))              ; Window title
+(setq frame-title-format '("%b - %f"))              ; Window title (full path)
+(setq frame-title-format '("%b"))                   ; Window title (just file name)
 (adaptive-wrap-prefix-mode 1)                       ; Wrap
 (switch-to-buffer (get-buffer-create "empty"))      ; Start with blank screen
 (delete-other-windows)
@@ -354,15 +355,14 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   (ido-mode 1)
   ;; (require 'icicles)
   ;; (icy-mode 1)
-  (require 'dired+)
-  (require 'tabbar)
-  (tabbar-mode))
+  ;; (require 'tabbar)
+  ;; (tabbar-mode)
+  (require 'dired+))
 
 
 ;;; ----------------------------------------------------------------------------
 ;;; Web mode
 ;;; ----------------------------------------------------------------------------
-
 (eval-after-load 'js2-mode
   '(add-hook 'js2-mode-hook
              (lambda ()
@@ -1002,7 +1002,6 @@ Vim's hlsearch."
 
 ;;; Buffer switching ------------------------------------
 
-;; (global-set-key [(f12)] 'icicle-buffer)
 (global-set-key [(f10)] 'ido-find-file)
 (global-set-key [(S-f10)] 'dired-jump)
 (global-set-key [(f12)] 'ido-switch-buffer)
@@ -1031,6 +1030,7 @@ Vim's hlsearch."
   "q" (lambda () (interactive) (eval-expression-at-point))
   "x" (lambda () (interactive) (kill-buffer))
   "b" (lambda () (interactive) (buffer-menu))
+  "," (lambda () (interactive) (ido-switch-buffer))
   "n" (lambda () (interactive) (switch-to-buffer (get-buffer-create "empty")))
   "f" (lambda () (interactive) (make-frame-command)))
   ;; "f" (lambda () (interactive) (evil-forward-sexp))
@@ -1168,3 +1168,4 @@ Vim's hlsearch."
 
 (start-full-emacs)
 (setq ns-pop-up-frames nil)
+
