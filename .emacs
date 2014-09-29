@@ -36,8 +36,8 @@
    exec-path-from-shell dired+
    evil evil-leader evil-paredit key-chord evil-surround
    autopair highlight-symbol
-   multiple-cursors mc-extras
-   js2-mode web-beautify
+   mc-extras iedit
+   js2-mode web-beautify flymake-jshint
    powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode
    clojure-mode nrepl))
 
@@ -81,12 +81,16 @@
 (setq lazy-highlight-initial-delay 0)
 
 ;;; Backups and files
-(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+(setq backup-directory-alist
+	  `((".*" . ,temporary-file-directory))
 	  backup-by-copying t                    ; Don't delink hardlinks
 	  version-control t                      ; Use version numbers on backups
 	  delete-old-versions t                  ; Automatically delete excess backups
 	  kept-new-versions 20                   ; how many of the newest versions to keep
 	  kept-old-versions 5)                   ; and how many of the old
+
+(setq auto-save-file-name-transforms
+	  `((".*" ,temporary-file-directory t)))
 
 ;;; Suppress GUI elements
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -363,12 +367,18 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;; ----------------------------------------------------------------------------
 ;;; Web mode
 ;;; ----------------------------------------------------------------------------
+
+(require 'flymake-jshint)
+(add-hook 'js-mode-hook 'flymake-mode)
+(add-hook 'js-mode-hook 'flymake-jshint-load)
+(add-hook 'js2-mode-hook 'flymake-mode)
+(add-hook 'js2-mode-hook 'flymake-jshint-load)
+
 (eval-after-load 'js2-mode
   '(add-hook 'js2-mode-hook
              (lambda ()
                (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
 
-;; Or if you're using 'js-mode' (a.k.a 'javascript-mode')
 (eval-after-load 'js
   '(add-hook 'js-mode-hook
              (lambda ()
