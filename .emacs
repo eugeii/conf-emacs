@@ -43,10 +43,6 @@
    clojure-mode nrepl))
 
 
-(setq highlight-symbol-colors '("Yellow"))
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;; Editor configuration
@@ -129,7 +125,6 @@
 (add-hook 'text-mode-hook 'turn-on-visual-line-mode)
 (setq visual-line-fringe-indicators '(left-curly-arrow right-curly-arrow))
 
-
 ;;; Emacs frame size
 (defun set-frame-size-according-to-resolution ()
   (interactive)
@@ -141,7 +136,6 @@
 	(if (eq system-type 'gnu/linux)
 		;; Set font
 		(set-face-attribute 'default nil :font "Droid Sans Mono"))
-
 
 	;; Set position to origin
 	(set-frame-position (selected-frame) 0 0)
@@ -438,7 +432,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 
 (add-hook 'web-mode-hook
 		  (lambda ()
-			(setq indent-tabs-mode t)
+			(setq indent-tabs-mode nil)
 			(setq tab-width 4)))
 
 
@@ -451,10 +445,6 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
     "Toggle `visual-line-mode' and `adaptive-wrap-prefix-mode' simultaneously."
     (adaptive-wrap-prefix-mode (if visual-line-mode 1 -1)))
   (add-hook 'visual-line-mode-hook 'my-activate-adaptive-wrap-prefix-mode))
-
-
-
-
 
 
 ;;; ----------------------------------------------------------------------------
@@ -643,6 +633,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;; ----------------------------------------------------------------------------
 
 (setq highlight-symbol-idle-delay 0)
+(setq highlight-symbol-colors '("Yellow"))
 
 
 ;;; ----------------------------------------------------------------------------
