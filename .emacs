@@ -32,28 +32,18 @@
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
            (package-install package))))
  '(color-theme-monokai monokai-theme
-   smart-mode-line expand-region adaptive-wrap icicles fuzzy-match tabbar
+   smart-mode-line expand-region adaptive-wrap fuzzy-match
    exec-path-from-shell dired+
-   evil evil-leader evil-paredit key-chord evil-surround
+   evil evil-leader evil-paredit key-chord evil-surround smartscan
    autopair highlight-symbol
-   mc-extras iedit
-   js2-mode web-beautify flymake-jshint
+   multiple-cursors mc-extras
+   ace-jump-mode
+   js2-mode web-beautify flymake-jshint less-css-mode scss-mode
    powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode
    clojure-mode nrepl))
 
 
-(defun forward-word-to-beginning (&optional n)
-  "Move point forward n words and place cursor at the beginning."
-  (interactive "p")
-  (let (myword)
-	(setq myword
-		  (if (and transient-mark-mode mark-active)
-			  (buffer-substring-no-properties (region-beginning) (region-end))
-			(thing-at-point 'symbol)))
-	(if (not (eq myword nil))
-		(forward-word n))
-	(forward-word n)
-	(backward-word n)))
+(setq highlight-symbol-colors '("Yellow"))
 
 
 
@@ -74,6 +64,11 @@
 (setq show-paren-style 'expression)      ; highlight entire bracket expression
 (setq line-move-visual t)                ; Visual movement (rather than line based movement)
 (setq-default truncate-lines 1)          ; Default no line wrap
+
+;; Force unix line endings
+(set-buffer-file-coding-system 'unix)
+(prefer-coding-system 'utf-8-unix)
+
 
 ;;; Search
 (setq lazy-highlight-cleanup nil)        ; Persistent highlights
@@ -100,6 +95,8 @@
 (setq use-dialog-box nil)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
+;; (blink-cursor-mode (- (*) (*) (*)))
+
 
 ;;; Scrolling
 (setq redisplay-dont-pause t
@@ -121,6 +118,9 @@
 (switch-to-buffer (get-buffer-create "empty"))      ; Start with blank screen
 (delete-other-windows)
 
+;;; Auto-reload buffers when changed
+(global-auto-revert-mode t)
+
 ;;; Text settings
 (setq fill-column 100)
 (setq-default tab-width 4)
@@ -141,11 +141,11 @@
 	(if (eq system-type 'gnu/linux)
 		;; Set font
 		(set-face-attribute 'default nil :font "Droid Sans Mono"))
-		
-		
+
+
 	;; Set position to origin
 	(set-frame-position (selected-frame) 0 0)
-	
+
     ;; use 120 char wide window for largeish displays
     ;; and smaller 80 column windows for smaller displays
     ;; pick whatever numbers make sense for you
@@ -157,7 +157,7 @@
     ;; from the screen height (for panels, menubars and
     ;; whatnot), then divide by the height of a char to
     ;; get the height we want
-    (add-to-list 'default-frame-alist 
+    (add-to-list 'default-frame-alist
          (cons 'height (/ (- (x-display-pixel-height) 200)
                              (frame-char-height)))))))
 
@@ -191,7 +191,7 @@ With argument ARG, do this that many times."
 
 
 ;;; ----------------------------------------------------------------------------
-;;; Windowing behavior 
+;;; Windowing behavior
 ;;; ----------------------------------------------------------------------------
 
 (defun swap-windows ()
@@ -266,7 +266,7 @@ Assumes that the frame is only split into two."
 		(delete-file filename)
 		(set-visited-file-name newname)
 		(set-buffer-modified-p nil)
-		t)))) 
+		t))))
 
 (defun open-buffer-path ()
   "Run explorer on the directory of the current buffer."
@@ -364,6 +364,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   (require 'dired+))
 
 
+
 ;;; ----------------------------------------------------------------------------
 ;;; Web mode
 ;;; ----------------------------------------------------------------------------
@@ -389,15 +390,25 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
              (lambda ()
                (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
 
+(eval-after-load 'html-mode
+  '(add-hook 'html-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+
+(eval-after-load 'web-mode
+  '(add-hook 'web-mode-hook
+             (lambda ()
+               (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+
 (eval-after-load 'sgml-mode
   '(add-hook 'html-mode-hook
              (lambda ()
                (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
 
-(eval-after-load 'css-mode
-  '(add-hook 'css-mode-hook
-             (lambda ()
-               (add-hook 'before-save-hook 'web-beautify-css-buffer t t))))
+;; (eval-after-load 'css-mode
+;;   '(add-hook 'css-mode-hook
+;;              (lambda ()
+;;                (add-hook 'before-save-hook 'web-beautify-css-buffer t t))))
 
 ;;; ----------------------------------------------------------------------------
 ;;; C/C++ mode
@@ -430,15 +441,69 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 			(setq indent-tabs-mode t)
 			(setq tab-width 4)))
 
+
 ;;; ----------------------------------------------------------------------------
-;;; Multiple cursors
+;;; Adaptive wrap
 ;;; ----------------------------------------------------------------------------
 
-;; (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-;; (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-;; (global-set-key [(f1)] 'mc/mark-all-like-this)
-;; (global-set-key (kbd "C-S-l") 'mc/edit-ends-of-lines)
+(when (fboundp 'adaptive-wrap-prefix-mode)
+  (defun my-activate-adaptive-wrap-prefix-mode ()
+    "Toggle `visual-line-mode' and `adaptive-wrap-prefix-mode' simultaneously."
+    (adaptive-wrap-prefix-mode (if visual-line-mode 1 -1)))
+  (add-hook 'visual-line-mode-hook 'my-activate-adaptive-wrap-prefix-mode))
+
+
+
+
+
+
+;;; ----------------------------------------------------------------------------
+;;; Multicursors
+;;; ----------------------------------------------------------------------------
+
+(defun toggle-evil-multiple-cursors-compatible-mode ()
+  "Toggles evil mode with visual cues."
+  (interactive)
+    (if (equal evil-move-cursor-back nil)
+		(progn
+		  (setq evil-visual-char 'inclusive)
+		  (setq evil-move-cursor-back 1)
+		  (message "evil-mode now set to pure Vim"))
+	  (progn
+		(setq evil-visual-char 'exclusive)
+		(setq evil-move-cursor-back nil)
+		(message "evil-mode now compatible with multiple-cursors"))))
+
+(setq mc/cmds-to-run-for-all
+      '(
+        evil-append-line
+        evil-backward-WORD-begin
+        evil-backward-word-begin
+        evil-delete
+        evil-delete-char
+        evil-delete-line
+        evil-digit-argument-or-evil-beginning-of-line
+        evil-emacs-state
+        evil-end-of-line
+        evil-force-normal-state
+        evil-forward-WORD-begin
+        evil-forward-WORD-end
+        evil-forward-word-begin
+        evil-forward-word-end
+        evil-insert
+        evil-next-line
+        evil-normal-state
+        evil-previous-line
+        ))
+
+(global-set-key [(f7)] 'toggle-evil-multiple-cursors-compatible-mode)
+
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key [(M-f3)] 'mc/mark-all-like-this-dwim)
+(global-set-key (kbd "C-S-l") 'mc/edit-ends-of-lines)
+
 
 ;;; ----------------------------------------------------------------------------
 ;;; Python mode
@@ -611,8 +676,8 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   "Disable evil mode with visual cues."
   `(progn
      (evil-mode 0)
-     (message "Evil mode disabled")
-     (setq cursor-type 'bar)))
+     (message "Evil mode disabled")))
+     ;; (setq cursor-type 'bar))
      ;; (custom-set-variables
 	 ;;  '(sml/active-background-color "steelblue4"))))
 
@@ -620,8 +685,8 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   "Enable evil mode with visual cues."
   `(progn
      (evil-mode 1)
-     (message "Evil mode enabled")
-     (setq cursor-type 'block)))
+     (message "Evil mode enabled")))
+     ;; (setq cursor-type 'block)))
      ;; (custom-set-variables
 	 ;;  '(sml/active-background-color "gray20"))
 
@@ -718,6 +783,8 @@ cursor."
   (interactive)
   (save-excursion
     (save-window-excursion
+	  (highlight-symbol-remove-all)
+	  (highlight-symbol-at-point)
       (evil-search-symbol-nomove 1))))
 
 (defun evil-clean-isearch-overlays ()
@@ -758,7 +825,8 @@ Vim's hlsearch."
   (interactive)
   (lazy-highlight-cleanup t)
   (isearch-clean-overlays)
-  (isearch-dehighlight))
+  (isearch-dehighlight)
+  (highlight-symbol-remove-all))
 
 (defun evil-copy-to-end-of-line ()
   "Copies text in a line from cursor to the end."
@@ -910,7 +978,7 @@ Vim's hlsearch."
   (interactive "^")
   (evil-beginning-of-visual-line)
   (set-mark-command nil)
-  (evil-end-of-visual-line))
+  (evil-end-of-line))
 
 
 ;;; Evil sexp
@@ -969,6 +1037,8 @@ Vim's hlsearch."
 (global-set-key (kbd "<C-backspace>") 'backward-delete-word)
 (global-set-key (kbd "<C-delete>") 'delete-word)
 (global-set-key (kbd "<delete>") 'evil-destroy-char)
+(global-set-key (kbd "<kp-delete>") 'evil-destroy-char)
+(global-set-key (kbd "<C-d>") 'evil-destroy-char)
 
 ;;; Search behavior
 (global-set-key (kbd "<C-s>") 'evil-search-forward)
@@ -1006,6 +1076,7 @@ Vim's hlsearch."
 ;;; Switch to previous most recently used buffer
 (global-set-key [(f4)] 'switch-to-previous-buffer)
 
+
 ;;; ----------------------------------------------------------------------------
 ;;; Key bindings for Modes
 ;;; ----------------------------------------------------------------------------
@@ -1022,7 +1093,6 @@ Vim's hlsearch."
 
 (global-evil-surround-mode 1)
 
-
 ;;; Evil mode (leader) ---------------------------
 
 ;;; Leader key and mappings
@@ -1035,27 +1105,22 @@ Vim's hlsearch."
   "q" (lambda () (interactive) (delete-window))                ; Delete window
   "1" (lambda () (interactive) (delete-other-windows))         ; Delete other windows
   "w" (lambda () (interactive) (select-window (next-window)))  ; Move to next window
-  ;; "e" (lambda () (interactive) (open-buffer-path))
   "e" (lambda () (interactive) (ido-find-file))
   "q" (lambda () (interactive) (eval-expression-at-point))
   "x" (lambda () (interactive) (kill-buffer))
   "b" (lambda () (interactive) (buffer-menu))
   "," (lambda () (interactive) (ido-switch-buffer))
   "n" (lambda () (interactive) (switch-to-buffer (get-buffer-create "empty")))
+  "m" (lambda () (interactive) (evil-ace-jump-char-mode))
   "f" (lambda () (interactive) (make-frame-command)))
-  ;; "f" (lambda () (interactive) (evil-forward-sexp))
-  ;; "b" (lambda () (interactive) (evil-backward-sexp))
-
 
 ; Escape key behavior
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
-;; (define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-
 
 ;;; Evil mode ------------------------------------
 
@@ -1071,6 +1136,7 @@ Vim's hlsearch."
 (define-key evil-insert-state-map (kbd "C-z") 'undo)
 (define-key evil-normal-state-map (kbd "C-r") 'undo-tree-redo)
 (define-key evil-insert-state-map (kbd "C-r") 'undo-tree-redo)
+(define-key evil-normal-state-map (kbd "U") 'undo-tree-visualize)
 
 ;; Commenting
 (define-key evil-normal-state-map (kbd "C-\\") 'comment-or-uncomment-region-or-line)
@@ -1131,9 +1197,18 @@ Vim's hlsearch."
 ;; Toggle evil mode
 (global-set-key [(f3)] 'toggle-evil-mode)
 
-;; Move by s-expression (sexp)
-;; (define-key evil-normal-state-map (kbd "M-(") 'evil-backward-sexp)
-;; (define-key evil-normal-state-map (kbd "M-)") 'evil-forward-sexp)
+
+
+(define-key evil-normal-state-map (kbd "Z") 'ace-jump-char-mode)
+(define-key evil-normal-state-map (kbd ", , w") 'ace-jump-word-mode)
+(define-key evil-normal-state-map (kbd ", , c") 'ace-jump-char-mode)
+(define-key evil-normal-state-map (kbd ", , l") 'ace-jump-line-mode)
+
+(define-key evil-operator-state-map (kbd ", , c") 'ace-jump-char-mode)
+(define-key evil-operator-state-map (kbd ", , l") 'ace-jump-line-mode)
+
+;; Set ace-jump to be limited to the visible window
+(setq ace-jump-mode-scope 'window)
 
 
 ;;; Start Emacs server
@@ -1142,7 +1217,7 @@ Vim's hlsearch."
 ;; (require 'server)
 ;; (when (and (>= emacs-major-version 23)
 ;;            (equal window-system 'w32))
-;;   (defun server-ensure-safe-dir (dir) "Noop" t)) 
+;;   (defun server-ensure-safe-dir (dir) "Noop" t))
 ;; (server-start)
 
 
@@ -1150,7 +1225,6 @@ Vim's hlsearch."
 
 (enable-evil-mode)
 
-;;; Re-initialize Evil
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1178,4 +1252,3 @@ Vim's hlsearch."
 
 (start-full-emacs)
 (setq ns-pop-up-frames nil)
-
