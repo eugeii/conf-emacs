@@ -446,6 +446,18 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
     (adaptive-wrap-prefix-mode (if visual-line-mode 1 -1)))
   (add-hook 'visual-line-mode-hook 'my-activate-adaptive-wrap-prefix-mode))
 
+(defun adaptive-wrap-fill-context-prefix (begin end)
+  "Like `fill-context-prefix', but with length adjusted by `adaptive-wrap-extra-indent'."
+  ;; Note: fill-context-prefix may return nil; See:
+  ;; http://article.gmane.org/gmane.emacs.devel/156285
+  (let* ((fcp (or (fill-context-prefix begin end) ""))
+         (fcp-len (string-width fcp)))
+    (if (>= adaptive-wrap-extra-indent 0)
+        (concat (make-string fcp-len ?\ )
+                "│"
+                (make-string adaptive-wrap-extra-indent ?\ ))
+      "")))
+
 
 ;;; ----------------------------------------------------------------------------
 ;;; Multicursors
