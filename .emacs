@@ -158,6 +158,19 @@
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
 
+;;; Garbage collector
+(setq gc-cons-threshold 20000000)
+(setq jit-lock-stealth-time 1
+      jit-lock-stealth-load 100
+      jit-lock-chunk-size 1000
+      jit-lock-defer-time 0.01)
+
+;;; Echo commands quicker
+(setq echo-keystrokes 0.1)
+
+;;; Large files
+(setq large-file-warning-threshold (* 25 1024 1024))
+
 
 ;;; Clipboard handling
 (setq x-select-enable-clipboard t)
@@ -395,10 +408,6 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
   (ido-mode 1)
   (ido-better-flex/enable)
   (setq ido-everythwere t)
-  ;; (require 'icicles)
-  ;; (icy-mode 1)
-  ;; (require 'tabbar)
-  ;; (tabbar-mode)
   (require 'dired+))
 
 
@@ -416,32 +425,44 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 (eval-after-load 'js2-mode
   '(add-hook 'js2-mode-hook
              (lambda ()
-               (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+			   (save-excursion
+				 (save-window-excursion
+				   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))))
 
 (eval-after-load 'js
   '(add-hook 'js-mode-hook
              (lambda ()
-               (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+			   (save-excursion
+				 (save-window-excursion
+				   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))))
 
 (eval-after-load 'json-mode
   '(add-hook 'json-mode-hook
              (lambda ()
-               (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+			   (save-excursion
+				 (save-window-excursion
+				   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))))
 
 (eval-after-load 'html-mode
   '(add-hook 'html-mode-hook
              (lambda ()
-               (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+			   (save-excursion
+				 (save-window-excursion
+				   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))))
 
 (eval-after-load 'web-mode
   '(add-hook 'web-mode-hook
              (lambda ()
-               (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+			   (save-excursion
+				 (save-window-excursion
+				   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))))
 
 (eval-after-load 'sgml-mode
   '(add-hook 'html-mode-hook
              (lambda ()
-               (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+			   (save-excursion
+				 (save-window-excursion
+				   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))))
 
 ;; (eval-after-load 'css-mode
 ;;   '(add-hook 'css-mode-hook
@@ -1301,12 +1322,18 @@ Vim's hlsearch."
 
 ;;; Start Emacs server
 
-; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
-;; (require 'server)
-;; (when (and (>= emacs-major-version 23)
-;;            (equal window-system 'w32))
-;;   (defun server-ensure-safe-dir (dir) "Noop" t))
-;; (server-start)
+;; (use-package server
+;;   :config
+;;   (progn
+;;     (if (window-system)
+;;         (if (server-running-p server-name)
+;;             nil
+;;           (progn
+;;             (setq server-name "server-gui")
+;;             (server-start)))
+;;       (if (server-running-p server-name)
+;;           nil
+;;         (server-start)))))
 
 
 ;;; Re-initialize Evil
