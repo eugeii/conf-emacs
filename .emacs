@@ -37,7 +37,7 @@
    evil evil-leader evil-paredit key-chord evil-surround smartscan
    autopair highlight-symbol
    multiple-cursors mc-extras
-   ace-jump-mode
+   ace-jump-mode ido-better-flex
    js2-mode web-beautify flymake-jshint less-css-mode scss-mode
    powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode
    clojure-mode nrepl))
@@ -90,9 +90,7 @@
 (setf inhibit-splash-screen t)
 (setq use-dialog-box nil)
 (tool-bar-mode -1)
-(menu-bar-mode -1)
-;; (blink-cursor-mode (- (*) (*) (*)))
-
+;; (menu-bar-mode -1)
 
 ;;; Scrolling
 (setq redisplay-dont-pause t
@@ -160,6 +158,50 @@
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
 
+
+;;; Clipboard handling
+(setq x-select-enable-clipboard t)
+(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
+(when (eq system-type 'gnu/linux)
+  (defun yank-to-x-clipboard ()
+    (interactive)
+    (if (region-active-p)
+        (progn
+          (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+          (message "Yanked region to clipboard!")
+          (deactivate-mark))
+      (message "No region active; can't yank to clipboard!")))
+
+  (global-set-key (kbd "C-M-w") 'yank-to-x-clipboard))
+
+(when (eq system-type 'darwin)
+  (setq ns-use-native-fullscreen nil)
+  (setq insert-directory-program "gls")
+  (setq dired-listing-switches "-aBhl --group-directories-first")
+  (defun copy-from-osx ()
+    "Handle copy/paste intelligently on osx."
+    (let ((pbpaste (purecopy "/usr/bin/pbpaste")))
+      (if (and (eq system-type 'darwin)
+               (file-exists-p pbpaste))
+          (let ((tramp-mode nil)
+                (default-directory "~"))
+            (shell-command-to-string pbpaste)))))
+
+  (defun paste-to-osx (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "/usr/bin/pbcopy")))
+        (process-send-string proc text)
+        (process-send-eof proc))))
+  (setq interprogram-cut-function 'paste-to-osx
+        interprogram-paste-function 'copy-from-osx)
+
+  (defun move-file-to-trash (file)
+    "Use `trash' to move FILE to the system trash.
+When using Homebrew, install it using \"brew install trash\"."
+    (call-process (executable-find "trash")
+                  nil 0 nil
+                  file)))
 
 ;;; ----------------------------------------------------------------------------
 ;;; Custom movement and editing
@@ -351,6 +393,8 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 (defun start-full-emacs ()
   (interactive)
   (ido-mode 1)
+  (ido-better-flex/enable)
+  (setq ido-everythwere t)
   ;; (require 'icicles)
   ;; (icy-mode 1)
   ;; (require 'tabbar)
@@ -454,7 +498,7 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
          (fcp-len (string-width fcp)))
     (if (>= adaptive-wrap-extra-indent 0)
         (concat (make-string fcp-len ?\ )
-                "│"
+                "" ; Add indent character here, if desired
                 (make-string adaptive-wrap-extra-indent ?\ ))
       "")))
 
@@ -540,25 +584,66 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector ["#1B1E1C" "#FF1493" "#87D700" "#CDC673" "#5FD7FF" "#D700D7" "#5FFFFF" "#F5F5F5"])
+ '(ansi-color-names-vector
+   ["#1B1E1C" "#FF1493" "#87D700" "#CDC673" "#5FD7FF" "#D700D7" "#5FFFFF" "#F5F5F5"])
  '(compilation-message-face (quote default))
- '(custom-safe-themes (quote ("60f04e478dedc16397353fb9f33f0d895ea3dab4f581307fbf0aa2f07e658a40" default)))
+ '(custom-safe-themes
+   (quote
+	("57f8801351e8b7677923c9fe547f7e19f38c99b80d68c34da6fa9b94dc6d3297" "60f04e478dedc16397353fb9f33f0d895ea3dab4f581307fbf0aa2f07e658a40" default)))
  '(fci-rule-color "#303030")
  '(highlight-changes-colors (quote ("#D700D7" "#AF87FF")))
- '(highlight-tail-colors (quote (("#303030" . 0) ("#B3EE3A" . 20) ("#AFEEEE" . 30) ("#8DE6F7" . 50) ("#FFF68F" . 60) ("#FFA54F" . 70) ("#FE87F4" . 85) ("#303030" . 100))))
+ '(highlight-tail-colors
+   (quote
+	(("#303030" . 0)
+	 ("#B3EE3A" . 20)
+	 ("#AFEEEE" . 30)
+	 ("#8DE6F7" . 50)
+	 ("#FFF68F" . 60)
+	 ("#FFA54F" . 70)
+	 ("#FE87F4" . 85)
+	 ("#303030" . 100))))
  '(magit-diff-use-overlays nil)
- '(syslog-debug-face (quote ((t :background unspecified :foreground "#5FFFFF" :weight bold))))
- '(syslog-error-face (quote ((t :background unspecified :foreground "#FF1493" :weight bold))))
+ '(syslog-debug-face
+   (quote
+	((t :background unspecified :foreground "#5FFFFF" :weight bold))))
+ '(syslog-error-face
+   (quote
+	((t :background unspecified :foreground "#FF1493" :weight bold))))
  '(syslog-hour-face (quote ((t :background unspecified :foreground "#87D700"))))
- '(syslog-info-face (quote ((t :background unspecified :foreground "#5FD7FF" :weight bold))))
+ '(syslog-info-face
+   (quote
+	((t :background unspecified :foreground "#5FD7FF" :weight bold))))
  '(syslog-ip-face (quote ((t :background unspecified :foreground "#CDC673"))))
  '(syslog-su-face (quote ((t :background unspecified :foreground "#D700D7"))))
- '(syslog-warn-face (quote ((t :background unspecified :foreground "#FF8C00" :weight bold))))
+ '(syslog-warn-face
+   (quote
+	((t :background unspecified :foreground "#FF8C00" :weight bold))))
  '(tabbar-separator (quote (1.0)))
  '(vc-annotate-background nil)
- '(vc-annotate-color-map (quote ((20 . "#FF1493") (40 . "#CF4F1F") (60 . "#C26C0F") (80 . "#CDC673") (100 . "#AB8C00") (120 . "#A18F00") (140 . "#989200") (160 . "#8E9500") (180 . "#87D700") (200 . "#729A1E") (220 . "#609C3C") (240 . "#4E9D5B") (260 . "#3C9F79") (280 . "#5FFFFF") (300 . "#299BA6") (320 . "#2896B5") (340 . "#2790C3") (360 . "#5FD7FF"))))
+ '(vc-annotate-color-map
+   (quote
+	((20 . "#FF1493")
+	 (40 . "#CF4F1F")
+	 (60 . "#C26C0F")
+	 (80 . "#CDC673")
+	 (100 . "#AB8C00")
+	 (120 . "#A18F00")
+	 (140 . "#989200")
+	 (160 . "#8E9500")
+	 (180 . "#87D700")
+	 (200 . "#729A1E")
+	 (220 . "#609C3C")
+	 (240 . "#4E9D5B")
+	 (260 . "#3C9F79")
+	 (280 . "#5FFFFF")
+	 (300 . "#299BA6")
+	 (320 . "#2896B5")
+	 (340 . "#2790C3")
+	 (360 . "#5FD7FF"))))
  '(vc-annotate-very-old-color nil)
- '(weechat-color-list (quote (unspecified "#1B1E1C" "#303030" "#5F0000" "#FF1493" "#6B8E23" "#87D700" "#968B26" "#CDC673" "#21889B" "#5FD7FF" "#A41F99" "#D700D7" "#349B8D" "#5FFFFF" "#F5F5F5" "#FFFAFA"))))
+ '(weechat-color-list
+   (quote
+	(unspecified "#1B1E1C" "#303030" "#5F0000" "#FF1493" "#6B8E23" "#87D700" "#968B26" "#CDC673" "#21889B" "#5FD7FF" "#A41F99" "#D700D7" "#349B8D" "#5FFFFF" "#F5F5F5" "#FFFAFA"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
