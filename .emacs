@@ -31,16 +31,24 @@
    (or (package-installed-p package)
        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
            (package-install package))))
- '(color-theme-monokai monokai-theme
-   smart-mode-line expand-region adaptive-wrap fuzzy-match
-   exec-path-from-shell dired+
-   evil evil-leader evil-paredit key-chord evil-surround smartscan
-   autopair highlight-symbol
-   multiple-cursors mc-extras
-   ace-jump-mode ido-better-flex
+ '(color-theme-monokai monokai-theme ; themes
+   smart-mode-line ; Vim-like mode line
+   expand-region
+   adaptive-wrap
+   fuzzy-match
+   exec-path-from-shell
+   dired+
+   evil evil-leader evil-paredit key-chord evil-surround
+   smartscan
+   autopair
+   highlight-symbol
+   multiple-cursors mc-extras ; Multicursors
+   ace-jump-mode
+   ido-better-flex ; Improvements to IDO-mode
    js2-mode web-beautify flymake-jshint less-css-mode scss-mode
-   powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode
-   clojure-mode nrepl))
+   powershell-mode python-mode markdown-mode web-mode emmet-mode go-mode lua-mode clojure-mode ; Modes
+   nrepl
+   ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -82,6 +90,10 @@
 
 (setq auto-save-file-name-transforms
 	  `((".*" ,temporary-file-directory t)))
+
+(setq
+  bookmark-default-file "~/.emacs.d/bookmarks"
+  bookmark-save-flag 1)
 
 ;;; Suppress GUI elements
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -410,7 +422,9 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
              (lambda ()
 			   (save-excursion
 				 (save-window-excursion
-				   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))))
+				   (setq sgml-basic-offset 4)
+				   (setq indent-tabs-mode t))))))
+				   ;; (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))))
 
 (eval-after-load 'web-mode
   '(add-hook 'web-mode-hook
@@ -424,7 +438,9 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
              (lambda ()
 			   (save-excursion
 				 (save-window-excursion
-				   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))))
+				   (setq sgml-basic-offset 4)
+				   (setq indent-tabs-mode t))))))
+				   ;; (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))))
 
 ;; (eval-after-load 'css-mode
 ;;   '(add-hook 'css-mode-hook
@@ -548,10 +564,6 @@ With prefix ARG, silently save all file-visiting buffers, then kill."
 ;;; ----------------------------------------------------------------------------
 ;;; Go mode
 ;;; ----------------------------------------------------------------------------
-
-(add-hook 'go-mode-hook
-		  (lambda ()
-			(global-set-key [(f9)] 'gofmt)))
 
 (add-hook 'before-save-hook 'gofmt-before-save)
 
@@ -1166,6 +1178,10 @@ Vim's hlsearch."
 
 ;;; Evil mode (leader) ---------------------------
 
+(global-set-key [(f9)] 'bookmark-jump)
+(global-set-key [(S-f9)] 'bookmark-bmenu-list)
+(global-set-key [(M-f9)] 'bookmark-set)
+
 ;;; Leader key and mappings
 (global-evil-leader-mode)
 (evil-leader/set-leader ",")
@@ -1180,7 +1196,7 @@ Vim's hlsearch."
   "q" (lambda () (interactive) (eval-expression-at-point))
   "x" (lambda () (interactive) (kill-buffer))
   "b" (lambda () (interactive) (buffer-menu))
-  "," (lambda () (interactive) (ido-switch-buffer))
+  "a" (lambda () (interactive) (bookmark-set))
   "n" (lambda () (interactive) (switch-to-buffer (get-buffer-create "empty")))
   "m" (lambda () (interactive) (evil-ace-jump-char-mode))
   "f" (lambda () (interactive) (make-frame-command)))
